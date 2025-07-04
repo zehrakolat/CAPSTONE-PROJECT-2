@@ -1,0 +1,76 @@
+from sage.all import *
+import random
+
+def optimal_B_without_u(N):
+    # lnN'yi hesapla
+    lnN = log(N).n()
+    
+    # B'yi tahmin et (logaritma hesaplaması ile)
+    B_estimate = exp(sqrt((Integer(1)/Integer(2)) * (lnN * log(lnN).n())).n())
+
+    B = next_prime(round(B_estimate))  # En yakın asal sayıya yuvarla
+    print(f"B estimate: {B_estimate}")
+    print(f"B estimate round: {B}")
+    return B
+
+def dixon_factorization_without_u(N):
+    B = optimal_B_without_u(N)  # B'yi otomatik belirle
+    factor_base = list(primes(B)) # B'ye kadar olan asal sayıları belirle
+    
+    for p in factor_base:
+        if N % p == 0:
+            return p
+    
+    A = []  # (b, factorization) çiftlerini saklayan küme
+    
+    while len(A) < len(factor_base) + 1:
+        b = random.randint(1, N-1)
+        g = gcd(b, N)
+        
+        if g > 1:
+            return g
+        
+        a = power_mod(b, 2, N)
+        
+        factorization = []
+        for p in factor_base:
+            exponent = 0
+            while a % p == 0:
+                a //= p
+                exponent += 1
+            factorization.append(exponent % 2)
+        
+        if a == 1:
+            A.append((b, factorization))
+    
+    matrix_A = Matrix(GF(2), [alpha for _, alpha in A])
+    null_space = matrix_A.right_kernel().basis()
+    
+    for solution in null_space:
+        x = 1
+        y = 1
+        
+        for i, coeff in enumerate(solution):
+            if coeff == 1:
+                x *= A[i][0]
+                for j, prime in enumerate(factor_base):
+                    if A[i][1][j] == 1:
+                        y *= prime
+        
+        x = mod(x, N)
+        y = mod(sqrt(y), N)
+        
+        g = gcd(x + y, N)
+        if 1 < g < N:
+            return g
+        
+        g = gcd(x - y, N)
+        if 1 < g < N:
+            return g
+    
+    return "failure"
+
+# Test
+N = 4076297
+factor = dixon_factorization_without_u(N)
+print("Found factor:", factor)
