@@ -1,0 +1,59 @@
+# e ve N değerlerini belirleyin
+#mod phiNde bak
+e = 53387 #105251
+N = 82123 
+
+# test için x değerleri 
+test_values = [2]
+
+# e/N oranını hesaplayın
+ratio = e / N
+
+# continued fraction hesaplamasını yapın
+cf = continued_fraction(ratio)
+
+# continued fractionin convergents'larını hesaplayın
+convergents = cf.convergents()
+
+# Sonuçları yazdırın
+print("continued fractions value:", cf)
+print("convergents:", convergents)
+
+
+# 4. Adım: Convergents'ten d'yi bulmak
+# Convergentsden elde edilen k/d'yi kontrol et ve doğru d'yi seç
+for conv in convergents:
+    k = conv.numerator() #continued fractionın bir convergentının pay kısmını verir
+    d = conv.denominator() #continued fractionın bir convergentının payda kısmını verir
+    print(f"Convergent: k = {k}, d = {d}")
+    
+    
+    ed = e * d
+    valid = True
+
+    for x in test_values:
+        x_pow = power_mod(2, ed, N)           # 2^(d*e) mod N
+        x_neg_pow = power_mod(2, -ed, N)      # 2^-(d*e) mod N
+        x_mod = x % N
+
+        # Birinin eşit olması yeterli
+        if x_pow == x_mod or x_neg_pow == x_mod:
+            # 2^(2*d*e) mod N hesapla
+            x_double_exp = power_mod(2, 2 * ed, N)
+            # Burada kontrol: x_double_exp == x_pow^2 veya x_neg_pow^2 ise kabul
+            if x_double_exp == (x_pow * x_pow) % N or x_double_exp == (x_neg_pow * x_neg_pow) % N:
+                print(f"x = {x}: x^(ed) ≡ x veya x^(-ed) ≡ x mod N ve x^(2ed) mod N kare şartı sağlandı.")
+            else:
+                print(f"x = {x}: Kare şartı sağlanmadı -> x^(2ed) mod N = {x_double_exp}")
+                valid = False
+                break
+        else:
+            print(f"x = {x}: Koşullar sağlanmadı -> x^(ed) = {x_pow}, x^(-ed) = {x_neg_pow}, x mod N = {x_mod}")
+            valid = False
+            break
+
+    if valid:
+        print(f"\n✅ Geçerli d bulundu: d = {d}")
+        break
+else:
+    print("\n❌ Geçerli d bulunamadı.")
