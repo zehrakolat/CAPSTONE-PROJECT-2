@@ -1,0 +1,51 @@
+import random
+from sage.all import gcd, inverse_mod, power_mod, random_prime
+
+# Asal sayıları seçen fonksiyon 
+def generate_large_primes(n):
+    
+    lower_bound = 2**((n-1)//2)  # alt sınır 
+    upper_bound = 2**(n//2)  #  üst sınır 
+
+    # 2^{(n-1)/2} ve 2^{n/2} arasındaki asal sayıları seç
+    p = random_prime(upper_bound -1, False, lower_bound) #False değeri, integer(not fractional) asal sayı seçileceğini belirtir.
+    q = random_prime(upper_bound -1, False, lower_bound) 
+
+    while p == q:  # p ve q aynı olursa tekrar yeni bir q seçene kadar döngüye devam eder.
+        q = random_prime(upper_bound -1, False, lower_bound)
+
+    return p, q
+
+
+    # e'yi random seçen fonksiyon
+def choose_e(L):
+    while True:
+        e = random.randint(2, L - 2)  # 2 ile L-2 arasında rastgele bir e seç
+        if gcd(e, L) == 1:  # gcd(e, L) = 1 olduğu sürece e'yi seç
+            return e
+
+# RSA anahtarlarını oluşturma fonksiyonu
+def generate_RSA_keys(n):
+    # Asal sayıları seç
+    p, q = generate_large_primes(n)
+
+    # N ve L hesapla
+    N = p * q
+    L = (p - 1) * (q - 1)
+    
+    # e'yi seç
+    e = choose_e(L)  
+
+    # d'yi hesapla (modüler ters)
+    d = inverse_mod(e, L)
+
+    return (N, e), (N, d)  # public key ve private key
+
+
+# Örnek n = 2048 için RSA anahtarlarını oluştur
+n = 16
+public_key, private_key = generate_RSA_keys(n)
+
+print(f"Public Key: {public_key}")
+print(f"Private Key: {private_key}")
+
