@@ -1,0 +1,46 @@
+import random
+from math import log, floor
+
+def pollard_pminus1(N):
+    
+    if N % 2 == 0:
+        print("Please select an odd composite number")
+        return None
+    
+    B = next_prime(int(N ** (1 / 6))) #smoothness bound
+    print(f"B: {B}")
+    
+    
+    M = 1 # başlangıç değerim
+    for q in primes(B): #B ye kadar olan asal q için.
+        M *= q**floor(log(B, q)) # M=q^(log_q (B)) lerin çarpımı
+    print(f"M: {M}")
+    
+    # a sayısını seçelim 
+    a = random.randint(1, N - 1)
+    while gcd(a, N) != 1:
+        a = random.randint(1, N - 1)
+
+    print(f"a: {a}")        
+    g = gcd(power_mod(a, M, N) - 1, N)
+
+    
+    # Adım 5, 6 ve 7'nin kontrolü
+    if 1 < g < N:
+        return g  # bir asal çarpan bulundu
+    elif g == 1: # g = 1 ise, daha büyük bir B seç ve adım 2'ye geri dön
+        print("g == 1, select a larger B.")
+        return None  # Başarısız
+    elif g == N: # Eğer g = n ise, daha küçük bir B seç ve adım 2'ye geri dön
+        print("g == n, select a smaller B.")
+        return None  # Başarısız
+    
+# Test 
+N =  1517 
+
+# Fonksiyonu çalıştırarak bir asal çarpan bulmayı deneyelim
+factor = pollard_pminus1(N)
+if factor:
+    print(f"Bulunan asal çarpan: {factor}")
+else:
+    print("Başarısız oldu.")
