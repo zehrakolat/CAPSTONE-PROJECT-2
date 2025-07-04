@@ -1,0 +1,29 @@
+def encryption(x, pk):
+    # pk = (N, e)
+    N, e = pk
+    
+    # Şifreleme işlemi: y ← x^e mod N
+    y = power_mod(x, e, N)
+    
+    # Şifreli mesajı döndür
+    return y
+
+message = 65537 # Şifrelenecek mesaj
+
+# Şifreleme işlemi
+encrypted_message = encryption(message, public_key)
+print(f"Encrypted Message: {encrypted_message}")
+
+def decryption(y, sk):
+    # sk = (N, d)
+    N, d = sk
+    
+    # Şifre çözme işlemi: z ← y^d mod N
+    z = power_mod(y, d, N)  # SageMath'te power_mod fonksiyonu kullanılabilir
+    
+    # Çözülmüş mesajı döndür
+    return z
+
+
+decrypted_message = decryption(encrypted_message, private_key)
+print(f"Decrypted Message: {decrypted_message}")
