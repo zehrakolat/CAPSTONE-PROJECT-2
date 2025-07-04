@@ -1,0 +1,35 @@
+from random import randint
+from sage.all import gcd
+
+def pollards_rho(N):
+    if N % 2 == 0:
+        return 2  # Eğer çift sayıysa hemen 2'yi döndür
+    
+    # Modüler fonksiyon f(x) = (x^2 + 1) mod N
+    def f(x, N):
+        return (x**2 + 1) % N
+    
+    x = randint(1, N - 1)  # Z_N'den random x sectim.
+    y = x
+    i = 0 #x ve y her iterasyonda kendilerini güncelleyerek x_i ve y_i gibi davranıyor. ve başlangıçta x0 y0.
+    
+    while True:
+        i += 1 #i burada sadece iterasyon sayısını takip etmek için var. Dizinin indislerini doğrudan tutmuyor, çünkü x ve y değişkenleri her iterasyonda bir önceki değerlerinin üzerine yazılıyor.
+        x = f(x, N)
+        y = f(f(y, N), N)   # y değeri doğru
+        
+        print(f"Iteration {i}: x = {x}, y = {y}") #x,y değerlerini kontrol etmek istiyorsan.
+        
+        g = gcd(abs(x - y), N) # abs=absolute value. x ve y değerleri önceki iterasyonlardan devralındığı için bu, aslında x_i - y_i işlemini gerçekleştiriyor.
+        
+        if g > 1 and g < N:
+            return g  # Bulunan çarpan
+        elif g == 1:
+            continue  # Eğer gcd 1 ise, algoritma devam eder
+        else:
+            return "failure"  # Eğer gcd N'ye eşitse, başarısızlık durumu
+
+# Örnek kullanım
+N = 1517  # Bölünebilir bir sayı seç
+factor = pollards_rho(N)
+print(f"divisor: {factor}")
